@@ -1,0 +1,1639 @@
+---
+title: "ProjectVisualization"
+author: "Jason"
+date: "May 16, 2017"
+output: html_document
+---
+```{r}
+rm <- gtclean %>% 
+  filter(country_txt=="Iraq") %>% 
+  select(AttackType=attacktype1_txt,targtype1_txt,iyear,imonth) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Government (Diplomatic)",
+                                  "Government (General)"),
+                              "Government (Diplomatic & General)",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Transportation",
+                                  "Maritime",
+                                  "Airports & Aircraft"), 
+                              "Transportation (Including Aviation, Maritime and Roads)",
+                              as.character(targtype1_txt))) %>% 
+  
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Tourists",
+                                  "Private Citizens & Property"), 
+                              "Private Citizens, Property",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% c("Food or Water Supply",
+                                                   "Telecommunication",
+                                                   "Utilities"), 
+                              "Utilities,Telecommunication, Food and Water Supply",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Religious Figures/Institutions",
+                                  "Abortion Related"), 
+                              "Religion Related",
+                              as.character(targtype1_txt))) %>% 
+  mutate(AttackType = ifelse(AttackType %in% c("Hostage Taking (Kidnapping)",
+                                               "Hostage Taking (Barricade Incident)",
+                                               "Hijacking"), 
+                             "Hostage & Hjacking",
+                                  as.character(AttackType))) %>%
+  mutate(AttackType = ifelse(AttackType %in% c("Unarmed Assault",
+                                               "Armed Assault"), 
+                             "Assault",
+                                  as.character(AttackType))) %>% 
+  dplyr::mutate(Date=as.numeric(iyear+imonth/12)) %>% 
+  dplyr::group_by(Date,AttackType,targtype1_txt) %>% 
+  summarise(n=n()) 
+
+
+rm1 <- rm %>% 
+  ggplot() +
+  geom_col(aes(x=Date,y=n,color=targtype1_txt)) +
+  facet_wrap(~AttackType,scales = "free") +
+  scale_x_continuous(limits = c(1970,2015.12), breaks = seq(1970,2016,5)) +
+  scale_y_continuous(limits = c(0,400),breaks = seq(0,400,40)) +
+  theme_classic() +
+  labs(title="Terrorist attack's targets in Iraq", subtitle="faceted by attack types") +
+  xlab("Year") + ylab("Number") +
+  theme(legend.position = "None",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=8),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="grey", fill="white"))
+
+
+rm2 <- gtclean %>% 
+  filter(country_txt=="Iraq") %>% 
+  select(AttackType=attacktype1_txt,targtype1_txt) %>%  
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Government (Diplomatic)",
+                                  "Government (General)",
+                                  "Military","Police"),
+                              "Government, Military, Police",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Transportation",
+                                  "Maritime",
+                                  "Airports & Aircraft"), 
+                              "Transportation (Including Aviation, Maritime and Roads)",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Tourists",
+                                  "Private Citizens & Property"), 
+                              "Private Citizens, Property",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% c("Food or Water Supply",
+                                                   "Telecommunication",
+                                                   "Utilities"), 
+                              "Utilities,Telecommunication, Food and Water Supply",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Utilities,Telecommunication, Food and Water Supply",
+                                  "Private Citizens, Property",
+                                  "Transportation (Including Aviation, Maritime and Roads)",
+                                  "Government, Military, Police"), 
+                              as.character(targtype1_txt),
+                              "Others")) %>% 
+  mutate(AttackType = ifelse(AttackType %in% c("Hostage Taking (Kidnapping)",
+                                               "Hostage Taking (Barricade Incident)",
+                                               "Hijacking"), 
+                             "Hostage & Hjacking",
+                                  as.character(AttackType))) %>%
+  mutate(AttackType = ifelse(AttackType %in% c("Unarmed Assault",
+                                               "Armed Assault"), 
+                             "Assault",
+                                  as.character(AttackType))) 
+mosaicplot(~targtype1_txt+AttackType,data=rm2)
+
+  
+```
+
+
+###    ***    Target    ***         .
+```{r}
+rmlvl <- gtclean %>%  
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Government (Diplomatic)",
+                                  "Government (General)"),
+                              "Government (Diplomatic & General)",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Transportation",
+                                  "Maritime",
+                                  "Airports & Aircraft"), 
+                              "Transportation (Including Aviation, Maritime and Roads)",
+                              as.character(targtype1_txt))) %>% 
+  
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Tourists",
+                                  "Private Citizens & Property"), 
+                              "Private Citizens, Property",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% c("Food or Water Supply",
+                                                   "Telecommunication",
+                                                   "Utilities"), 
+                              "Utilities,Telecommunication, Food and Water Supply",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Religious Figures/Institutions",
+                                  "Abortion Related"), 
+                              "Religion Related",
+                              as.character(targtype1_txt))) %>% 
+  group_by(targtype1_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(n)
+
+rmlvl$targtype1_txt <- factor(rmlvl$targtype1_txt,levels=rmlvl$targtype1_txt)
+
+rmlvl2 <- gtclean %>%
+  select(AttackType=attacktype1_txt,targtype1_txt,Country=country_txt) %>% 
+  filter(Country=="Iraq") %>% 
+  mutate(AttackType = ifelse(AttackType %in% c("Hostage Taking (Kidnapping)",
+                                               "Hostage Taking (Barricade Incident)",
+                                               "Hijacking"), 
+                             "Hostage & Hjacking",
+                                  as.character(AttackType))) %>%
+  mutate(AttackType = ifelse(AttackType %in% c("Unarmed Assault",
+                                               "Armed Assault"), 
+                             "Assault",
+                                  as.character(AttackType))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Government (Diplomatic)",
+                                  "Government (General)"),
+                              "Government (Diplomatic & General)",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Transportation",
+                                  "Maritime",
+                                  "Airports & Aircraft"), 
+                              "Transportation (Including Aviation, Maritime and Roads)",
+                              as.character(targtype1_txt))) %>% 
+  
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Tourists",
+                                  "Private Citizens & Property"), 
+                              "Private Citizens, Property",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% c("Food or Water Supply",
+                                                   "Telecommunication",
+                                                   "Utilities"), 
+                              "Utilities,Telecommunication, Food and Water Supply",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Religious Figures/Institutions",
+                                  "Abortion Related"), 
+                              "Religion Related",
+                              as.character(targtype1_txt))) %>% 
+  group_by(targtype1_txt,AttackType) %>% 
+  summarise(n=n()) 
+
+
+rmlvl2$targtype1_txt <- factor(rmlvl2$targtype1_txt,levels=rmlvl$targtype1_txt)
+
+rm <- rmlvl2 %>%
+  arrange(desc(n)) %>% 
+  ggplot(aes(x=targtype1_txt, y=n)) + 
+  geom_col(width = 0.8) +
+  coord_flip() +
+  facet_wrap(~AttackType) +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,6000),breaks = seq(0,6000,1000)) +
+  labs(title="Targets", subtitle="Facet by attack type, filled by Region") +
+  ylab("Counts") + xlab("Target Types") +
+  theme(legend.position = "bottom",legend.box = "horizontal",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=8),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="grey", fill="white"))
+```
+  
+  
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(GGally)
+library(geomnet)
+library(ggTimeSeries)
+```
+#   ***    Read the cleaned Data set    ***    .
+```{r}
+gtclean <- read.csv("gtcleaned.csv",header=TRUE)
+attach(gtclean)
+```
+#        further correction       .
+###     ~     resolution    .
+according to the summary, modify the incorrect values
+```{r}
+gtclean$resolutionYY[ID==4732] <- 1977
+# have no way to fix this variable by my self.
+# hundreds of observations have significant incorrect values
+```
+###      ~      property    .
+```{r}
+gtclean <- gtclean %>% 
+  mutate(propextent_txt=ifelse(property==1 & propextent == 3,
+                               "Minor (likely < $1 million)",
+                               as.character(propextent_txt))) %>% 
+  mutate(propextent_txt=ifelse(property==1 & propextent == 2,
+                       "Major (likely > $1 million but < $1 billion)",
+                               as.character(propextent_txt))) %>%
+  mutate(propextent_txt=ifelse(property==1 & propextent == 1,
+                               "Catastrophic (likely > $1 billion)",
+                               as.character(propextent_txt))) %>%             mutate(propextent_txt=ifelse(property==1 & propextent == "NULL",
+                               "Unknown",
+                               as.character(propextent_txt))) %>%
+  mutate(propextent=ifelse(property==1 & propextent == "NULL", 
+                           "Unknown",
+                           as.character(propextent))) %>%
+  mutate(propextent=ifelse(property==1 & propextent == 4, 
+                           "Unknown",
+                           as.character(propextent))) %>%
+  mutate(propextent_txt=ifelse(property==1 & propextent == "Unknown",
+                               "Unknown",
+                           as.character(propextent_txt))) %>%
+  mutate(propextent_txt = ifelse(property==0, "No Damage",
+                               as.character(propextent_txt))) %>%
+  mutate(propextent = ifelse(property==0, 0,
+                               as.character(propextent)))
+
+gtclean <- gtclean %>%
+  mutate(propextent_txt=ifelse(property=="Unknown" & propextent==3,
+                               "Minor (likely < $1 million)",
+                               as.character(propextent_txt)),
+         propextent_txt=ifelse(property=="Unknown" & propextent==4,
+                               "Unknown",
+                               as.character(propextent_txt))) %>%
+  mutate(property=ifelse(property=="Unknown" & propextent==3, 1,
+                               as.character(property))) %>% 
+  mutate(propextent=ifelse(property=="Unknown" & propextent==4, 
+                           "Unknown",
+                           as.character(propextent)),
+         propextent=ifelse(property=="Unknown" & propextent=="NULL", 
+                           "Unknown",
+                           as.character(propextent)))
+
+gtclean[ID==62578,55]=1
+gtclean[ID==62578,56]="Catastrophic (likely > $1 billion)"
+
+
+gtclean <-  gtclean %>% 
+  mutate(propextent_txt=ifelse(property=="Unknown" &propextent=="Unknown", "Unknown", as.character(propextent_txt)),
+         propextent_txt=ifelse(property=="1" &propextent=="Unknown", "Damaged but unknown", as.character(propextent_txt)))
+
+gtclean %>% 
+  group_by(property,propextent,propextent_txt) %>% 
+  summarise(n=n())
+
+```
+#      Missing Value plot
+```{r}
+
+MVPPLOT <- data.frame(Variables=names(gt),Unknowns=rep(0,137),NAs=rep(0,137),NormalValues=rep(0,137))
+for(i in 1:137){
+  MVPPLOT[i,2] = (as.numeric(summary(gt[,i] %in% c("Unknown","Unk","Un","un","unknown","unk","u","n"))[3]) + as.numeric(summary(gt[,i] %in% c("-99","-11","-9"))[3]))/156772
+  MVPPLOT[i,3] = (as.numeric(summary(is.na(gt[,i]))[3]) + as.numeric(summary(gt[,i] %in% c("", ".", " ", ",", "-", "_"))[3]))/156772
+  MVPPLOT[i,4] = 1- MVPPLOT[i,2] - MVPPLOT[i,3]
+}
+MVPPLOT$SUM <- MVPPLOT$Unknowns+MVPPLOT$NAs+MVPPLOT$NormalValues
+
+rm = data.frame(Variables=rep(MVPPLOT$Variables,3),
+              Values=c(MVPPLOT$Unknowns,MVPPLOT$NAs,
+                       MVPPLOT$NormalValues),
+              Indicator=as.factor(c(rep(1,137),rep(2,137),
+                          rep(3,137))))
+
+rm1 <- MVPPLOT %>% arrange(desc(NAs))
+
+rm$Variables <- factor(rm$Variables,              levels=rm1$Variables)
+
+rm2 <- rm %>% 
+  arrange(desc(Values)) %>% 
+ggplot(aes(x=Variables,y=Values,fill=Indicator)) +
+  geom_col(width = 0.7) +
+  theme_classic() +
+  coord_flip() +
+  scale_y_continuous(limits = c(0,1),breaks = seq(0,1,0.1)) +
+  labs(x="Variable Names", y="% percentage", title="Proportion of Missing & Unknown Values in GTD") +
+  theme(legend.position = "None",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=4.5))
+
+```
+
+
+#
+##    ~   where & when   ~     .
+###    ***    AttackFreq.Type,Country.Region.   ***    .
+```{r}
+rm1 <- gtclean %>% 
+  filter(is.na(country_txt)==FALSE) %>% 
+  group_by(country_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+
+rm1$country_txt <- factor(rm1$country_txt,levels=rm1$country_txt)
+
+rm2 <- gtclean %>% 
+  select(Country=country_txt,Region=region_txt,
+         AttackType=attacktype1_txt) %>% 
+  filter(is.na(Country)==FALSE) %>% 
+  mutate(Region=ifelse(Region %in% c("Central Asia","East Asia"),
+                       "East & Central Asia",
+                       as.character(Region)),
+         Region=ifelse(Region %in% c("South Asia","Southeast Asia"),
+                       "South & Southeast Asia",
+                       as.character(Region))) %>% 
+  mutate(AttackType = ifelse(AttackType %in% c("Hostage Taking (Kidnapping)",
+                                               "Hostage Taking (Barricade Incident)",
+                                               "Hijacking"), 
+                             "Hostage & Hijacking",
+                                  as.character(AttackType))) %>%
+  mutate(AttackType = ifelse(AttackType %in% c("Unarmed Assault",
+                                               "Armed Assault"), 
+                             "Assault",
+                                  as.character(AttackType))) %>% 
+  group_by(Country,Region,AttackType) %>% 
+  summarise(n=n())
+
+
+rm2$Country <- factor(rm2$Country,levels=rm1$country_txt)
+
+rm3 <- rm2 %>% 
+  ggplot(aes(x=Country, y=n,fill=AttackType,color=AttackType)) +
+  geom_col() +
+  facet_wrap(~Region, scales = "free",nrow = 2) +
+  coord_flip() +
+  theme_classic() +
+  labs(title="Terrorism Incidents Within each Country") +
+  xlab(" ") + ylab("Total Incidents caused by Terrorism") +
+  theme(legend.position = "bottom",legend.box = "horizontal",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=6),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="white", fill="white"))
+
+```
+
+###    ***    Frequency.Region.Year    ***    .
+```{r}
+rm1 <- gt %>% 
+  select(Year=iyear,Region=region_txt) %>% 
+  group_by(Year,Region) %>% 
+  summarise(n=n()) %>% 
+  ggplot(aes(x=Year,y=n,fill=Region,color=Region)) +
+  geom_bar(stat = "identity") +
+  scale_x_continuous(breaks = seq(1970,2015,2),limits = c(1969,2016)) +
+  scale_y_continuous(breaks = seq(0,18000,2000),limits = c(0,18000)) +
+  theme_classic() +
+  labs(title="Global Terrorism Attacks Frequency",subtitle="overall") +
+  xlab("Year") + ylab("Frequency") +
+  theme(legend.position = "none",
+        title = element_text(size = 14,face="bold"),
+        axis.text.x = element_text(size=8),
+        axis.text.y = element_text(size=9)
+        )
+
+rm2 <- gt %>% 
+  select(Year=iyear,Region=region_txt) %>% 
+  group_by(Year,Region) %>% 
+  summarise(n=n()) %>% 
+  ggplot(aes(x=Year,y=n,fill=Region,color=Region)) +
+  geom_bar(stat = "identity") + facet_wrap(~Region,nrow=2) +
+  scale_x_continuous(breaks = seq(1970,2015,5),limits = c(1969,2016)) +
+  theme_classic() +
+  labs(subtitle="within each region") +
+  xlab("Year") + ylab("Frequency") +
+  theme(legend.position = "bottom",legend.box = "horizontal",
+        axis.text.x = element_text(size=8,angle = 30),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="white", fill="white"))
+
+
+multiplot(rm1,rm2,cols=1)
+
+```
+###    ***    Monthly    ***     ~    .
+```{r}
+MonthPlot <- gtclean %>% 
+  select(country_txt,imonth,attacktype1_txt) %>% 
+  group_by(imonth, country_txt,attacktype1_txt) %>% 
+  summarise(fre=n()) %>% 
+  ggplot(aes(x=imonth,y=fre,fill=attacktype1_txt)) +
+  geom_col() + 
+  theme_classic() +
+  labs(title="Global Terrorism Incident in each month") +
+  xlab("Month") + ylab("Total Terrorism Incident") +
+  scale_x_continuous(limits = c(0,12),breaks = seq(0,12,1)) +
+  theme(legend.position = "bottom",legend.box = "horizontal",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=6))
+
+countryplot$yymm <- with(countryplot,sprintf("%d-%02d",iyear,imonth))
+head(countryplot$yymm)
+countryplot$yymm <- as.Date(countryplot$yymm,"%Y-%m")
+head(countryplot$yymm)
+
+```
+###    ***    countries alongs the time    ~     .
+```{r}
+top20countries <- gtclean %>% 
+  select(country_txt) %>% 
+  group_by(country_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n)) %>% 
+  as.data.frame()
+
+wtsp <- gtclean %>% 
+  filter(imonth != 0) %>% 
+  filter(country_txt %in% top20countries[1:20,1]) %>% 
+  select(Country=country_txt,imonth,iyear) %>% 
+  mutate(Date=as.numeric(iyear+imonth/12)) %>% 
+  group_by(Date,Country) %>% 
+  summarise(fre=n()) %>% 
+  ggplot(aes(x=Date, y=fre,color=Country)) +
+  geom_line(size=0.8) +
+  facet_wrap(~Country,nrow = 5) +
+  scale_x_continuous(limits = c(1970.00,2015.12), breaks = seq(1970,2015,5)) +
+  theme_classic() +
+  labs(title="Time-Series Plot") +
+  xlab("Country") + ylab("Total Terrorism Incident") +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size=8,angle=30),
+        axis.text.y = element_text(size=8),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="white", fill="white"))
+
+wtsp
+```
+###    ***    Extended    ~     .
+```{r}
+gt %>% 
+  filter(extended==1) %>% 
+  group_by(attacktype1_txt) %>% 
+  summarise(n=n())
+  
+gt %>% 
+  filter(extended==1) %>%
+  group_by(resolution) %>% 
+  summarise(n=n()) %>% 
+  filter(n>3)
+
+Extcases <- gt %>% 
+  select(extended,ransom,ransomamt,ransompaid,
+         ishostkid,nhostkid,country_txt,
+         nreleased,hostkidoutcome,hostkidoutcome_txt) %>% 
+  filter(extended == 1)  
+  
+  summary(as.factor(gtclean$extended))
+
+```
+
+##    ~     Who     ~       .
+###    ***    groups alongs the time    ~     .
+```{r}
+
+gtclean %>% 
+  select(targtype1_txt) %>% 
+  group_by(targtype1_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n)) %>% 
+  as.data.frame()
+
+rm <- gtclean %>% 
+  select(group=gname,iyear,imonth) %>% 
+  mutate(date=as.numeric(iyear+imonth/12)) %>% 
+  group_by(group) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n)) %>% 
+  as.data.frame()
+
+tiff('test.tiff', units="in", width=40, height=40, res=300) 
+
+gnamets <- gtclean %>% 
+  select(GroupName=gname,imonth,iyear,Region=region_txt) %>% 
+  mutate(Date=as.numeric(iyear+(imonth-1)/12)) %>% 
+  mutate(Region=ifelse(Region %in% c("North America",
+                                     "Central America & Caribbean",
+                                     "South America"),
+                       "America",as.character(Region)),
+         Region=ifelse(Region %in% c("Central Asia",
+                                     "Southeast Asia",
+                                     "East Asia",
+                                     "South Asia"),
+                       "Asia",as.character(Region)),
+         Region=ifelse(Region %in% c("Western Europe",
+                                     "Eastern Europe"),
+                       "Europe",as.character(Region)),
+         Region=ifelse(Region %in% c("Middle East & North Africa",
+                                     "Sub-Saharan Africa"),
+                       "Middle East & Africa",as.character(Region))) %>% 
+  filter(GroupName %in% rm[c(2:17),1]) %>% 
+  group_by(Date,GroupName,Region) %>% 
+  summarise(fre=n()) %>% 
+  ggplot(aes(x=Date, y=fre,color=Region)) +
+  geom_line(size=0.6,alpha=0.9) +
+  geom_point(size=0.6) +
+  facet_wrap(~GroupName, scales = "free") +
+  scale_y_continuous(limits=c(0,170),breaks = seq(0,170,34)) +
+  scale_x_continuous(limits = c(1970.00,2015.12), breaks = seq(1970,2015,5)) +
+  theme_classic() +
+  labs(title="Terrorism Groups",subtitle="The first 20 frequent groups") +
+  xlab("Year") + ylab("Counts") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=7,hjust=1),
+        axis.text.y = element_text(size=8),
+        strip.text.x = element_text(size=11,face = "bold"),
+        strip.background = element_rect(colour="grey", fill="white"))
+  dev.off() 
+```
+###    ***    Target    ***         .
+```{r}
+rmlvl <- gtclean %>%  
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Government (Diplomatic)",
+                                  "Government (General)"),
+                              "Government (Diplomatic & General)",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Transportation",
+                                  "Maritime",
+                                  "Airports & Aircraft"), 
+                              "Transportation (Including Aviation, Maritime and Roads)",
+                              as.character(targtype1_txt))) %>% 
+  
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Tourists",
+                                  "Private Citizens & Property"), 
+                              "Private Citizens, Property",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% c("Food or Water Supply",
+                                                   "Telecommunication",
+                                                   "Utilities"), 
+                              "Utilities,Telecommunication, Food and Water Supply",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Religious Figures/Institutions",
+                                  "Abortion Related"), 
+                              "Religion Related",
+                              as.character(targtype1_txt))) %>% 
+  group_by(targtype1_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+
+rmlvl$targtype1_txt <- factor(rmlvl$targtype1_txt,levels=rmlvl$targtype1_txt)
+
+rmlvl2 <- gtclean %>%
+  select(AttackType=attacktype1_txt,targtype1_txt,Region=region_txt) %>% 
+  mutate(Region=ifelse(Region %in% c("North America",
+                                     "Central America & Caribbean",
+                                     "South America"),
+                       "America",as.character(Region)),
+         Region=ifelse(Region %in% c("Central Asia",
+                                     "Southeast Asia",
+                                     "East Asia",
+                                     "South Asia"),
+                       "Asia",as.character(Region)),
+         Region=ifelse(Region %in% c("Western Europe",
+                                     "Eastern Europe"),
+                       "Europe",as.character(Region)),
+         Region=ifelse(Region %in% c("Middle East & North Africa",
+                                     "Sub-Saharan Africa"),
+                       "Middle East & Africa",as.character(Region))) %>% 
+  mutate(AttackType = ifelse(AttackType %in% c("Hostage Taking (Kidnapping)",
+                                               "Hostage Taking (Barricade Incident)",
+                                               "Hijacking"), 
+                             "Hostage & Hjacking",
+                                  as.character(AttackType))) %>%
+  mutate(AttackType = ifelse(AttackType %in% c("Unarmed Assault",
+                                               "Armed Assault"), 
+                             "Assault",
+                                  as.character(AttackType))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Government (Diplomatic)",
+                                  "Government (General)"),
+                              "Government (Diplomatic & General)",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Transportation",
+                                  "Maritime",
+                                  "Airports & Aircraft"), 
+                              "Transportation (Including Aviation, Maritime and Roads)",
+                              as.character(targtype1_txt))) %>% 
+  
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Tourists",
+                                  "Private Citizens & Property"), 
+                              "Private Citizens, Property",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% c("Food or Water Supply",
+                                                   "Telecommunication",
+                                                   "Utilities"), 
+                              "Utilities,Telecommunication, Food and Water Supply",
+                              as.character(targtype1_txt))) %>% 
+  mutate(targtype1_txt=ifelse(targtype1_txt %in% 
+                                c("Religious Figures/Institutions",
+                                  "Abortion Related"), 
+                              "Religion Related",
+                              as.character(targtype1_txt))) %>% 
+  group_by(targtype1_txt,AttackType,Region) %>% 
+  summarise(n=n()) 
+
+
+rmlvl2$targtype1_txt <- factor(rmlvl2$targtype1_txt,levels=rmlvl$targtype1_txt)
+
+rm <- rmlvl2 %>%
+  arrange(desc(n)) %>% 
+  ggplot(aes(x=targtype1_txt, y=n, fill=Region)) + 
+  geom_col(width = 0.8) +
+  coord_flip() +
+  facet_wrap(~AttackType) +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,17500),breaks = seq(0,17500,2500)) +
+  labs(title="Targets", subtitle="Facet by attack type, filled by Region") +
+  ylab("Counts") + xlab("Target Types") +
+  theme(legend.position = "bottom",legend.box = "horizontal",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=8),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="grey", fill="white"))
+```
+  
+  
+
+##    ~     How     ~       .
+###    ~    Attack Type   ~    .
+```{r}
+gtclean %>% 
+  select(Country=country_txt,AttackType=attacktype1_txt,imonth,iyear) %>% 
+  mutate(AttackType = ifelse(AttackType %in% c("Hostage Taking (Kidnapping)",
+                                                         "Hostage Taking (Barricade Incident)",
+                                                         "Hijacking"), 
+                             "Hostage & Hjacking",
+                                  as.character(AttackType))) %>%
+  mutate(AttackType = ifelse(AttackType %in% c("Unarmed Assault",
+                                                         "Armed Assault"), 
+                             "Assault",
+                                  as.character(AttackType))) %>% 
+  group_by(AttackType) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+  
+  
+
+rm <- gtclean %>% 
+  select(Country=country_txt,AttackType=attacktype1_txt,imonth,iyear) %>% 
+  mutate(AttackType = ifelse(AttackType %in% c("Hostage Taking (Kidnapping)",
+                                                         "Hostage Taking (Barricade Incident)",
+                                                         "Hijacking"), 
+                             "Hostage & Hjacking",
+                                  as.character(AttackType))) %>%
+  mutate(AttackType = ifelse(AttackType %in% c("Unarmed Assault",
+                                                         "Armed Assault"), 
+                             "Assault",
+                                  as.character(AttackType))) %>% 
+  mutate(Date=as.numeric(iyear+(imonth-1)/12)) %>%
+  group_by(AttackType,Date) %>% 
+  summarise(n=n()) %>% 
+  mutate(Year=as.integer(Date)) %>% 
+  ggplot(aes(x=as.factor(Year),y=n,fill=AttackType)) +
+  geom_boxplot() +
+  facet_wrap(~AttackType,nrow=2,scales = "free") +
+  scale_x_discrete(breaks=as.factor(seq(1970,2015,5))) +
+  scale_y_continuous(limits = c(0,900), breaks = seq(0,900,180)) +
+  scale_linetype_manual(values = rep("solid", 6)) +
+  theme_classic() +
+  labs(title="Time-Series Boxplot of Attack Type",subtitle="In each year from 1970 to 2015") +
+  xlab("Year") + ylab("Total Incident") +
+  theme(legend.position = "None",
+        legend.key = element_blank(),
+        legend.box = "horizontal",
+        axis.text.x = element_text(size=8,hjust=1),
+        axis.text.y = element_text(size=10),
+        strip.text.x = element_text(size=11,face = "bold"),
+        strip.background = element_rect(colour="grey", fill="white")) 
+
+
+```
+###    ~    Weapon    ~    ~     .
+```{r}
+wpaltm <- gtclean %>% 
+  select(Region=region_txt,Country=country_txt,WeaponType=weaptype1_txt,imonth,iyear) %>% 
+  mutate(WeaponType=ifelse(WeaponType %in% c("Chemical","Biological","Radiological"),"Biochemical Weapons",as.character(WeaponType))) %>% 
+  mutate(WeaponType=ifelse(WeaponType %in% c("Sabotage Equipment","Vehicle (not to include vehicle-borne explosives, i.e., car or truck bombs)","Fake Weapons"),"Other",as.character(WeaponType))) %>% 
+  mutate(Region=ifelse(Region %in% c("North America",
+                                     "Central America & Caribbean",
+                                     "South America"),
+                       "America",as.character(Region)),
+         Region=ifelse(Region %in% c("Central Asia",
+                                     "Southeast Asia",
+                                     "East Asia",
+                                     "South Asia"),
+                       "Asia",as.character(Region)),
+         Region=ifelse(Region %in% c("Western Europe",
+                                     "Eastern Europe"),
+                       "Europe",as.character(Region)),
+         Region=ifelse(Region %in% c("Middle East & North Africa",
+                                     "Sub-Saharan Africa"),
+                       "Middle East & Africa",as.character(Region))) %>%
+  mutate(Date=as.numeric(iyear+(imonth-1)/12)) %>% 
+  group_by(Date,WeaponType,Region) %>% 
+  summarise(fre=n()) %>% 
+  ggplot(aes(x=Date, y=fre,color=Region)) +
+  geom_point(size=0.6) +
+  geom_line(alpha=0.8,size=0.5) +
+  facet_wrap(~WeaponType,nrow = 3,scales = "free") +
+  scale_x_continuous(limits = c(1970.00,2016), breaks = seq(1970,2016,5)) +
+  theme_classic() +
+  labs(title="Weapon Type plot",subtitle="In Each Month") +
+  xlab("Year") + ylab("Total Incident") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=8,hjust=1),
+        axis.text.y = element_text(size=9),
+        strip.text.x = element_text(size=11,face = "bold"),
+        strip.background = element_rect(colour="white", fill="white"))
+
+
+```
+
+
+##    ~     Why     ~       .
+###  Inclusion Criteria   ~     .
+```{r}
+gtclean %>% 
+  select(ID,country_txt,crit1,crit2,crit3) %>% 
+  group_by(crit1,crit2,crit3) %>% 
+  summarise(n=n())
+
+# the "-9" means the variable was not included in the data collection process at the time the case was recoded.
+# can be treated as unkno
+
+rm <- gtclean %>% 
+  mutate(doubtterr=ifelse(is.na(doubtterr)==TRUE,"Unknown", doubtterr)) %>%
+  group_by(doubtterr) %>% 
+  summarise(n=n())
+
+rm <- gtclean %>% 
+  mutate(doubtterr=ifelse(is.na(doubtterr)==TRUE,"Unknown", doubtterr)) %>%
+  mutate(crit1=ifelse(crit1==1,"Criterion 1", "")) %>% 
+  mutate(crit2=ifelse(crit2==1,"Criterion 2", "")) %>% 
+  mutate(crit3=ifelse(crit3==1,"Criterion 3", "")) %>% 
+  mutate(doubtterr=ifelse(doubtterr==0,"No doubt",as.character(doubtterr))) %>% 
+  mutate(doubtterr=ifelse(doubtterr==1,"Doubt",as.character(doubtterr))) %>% 
+  group_by(doubtterr,crit1,crit2,crit3) %>% 
+  summarise(n=n()) %>% 
+  ggplot(aes(x=doubtterr, y=n,fill=doubtterr)) +
+  geom_col() + 
+  facet_wrap(~crit1+crit2+crit3,nrow = 2) +
+  theme_classic() +
+  labs(title="Doubt Terrorism Proper") +
+  xlab("Doubt") + ylab("Number of Incidents") +
+  theme(legend.position = "None",
+        axis.text.x = element_text(size=8),
+        strip.text.x = element_text(size=8,face = "bold"),
+        strip.background = element_rect(colour="grey", fill="white"))
+
+rm <- gtclean %>% 
+  filter(doubtterr==0 & alternative_txt=="Other Crime Type") %>% 
+  select(ID) %>% 
+  as.data.frame()
+
+gtclean %>% 
+  mutate(doubtterr=ifelse(ID %in% c(67767,90235,rm$ID),1,doubtterr)) %>% 
+  mutate(doubtterr=ifelse(is.na(doubtterr)==TRUE,"Unknown", doubtterr)) %>%
+  group_by(doubtterr,alternative_txt,crit1,crit2,crit3) %>% 
+  summarise(n=n()) %>% 
+  ggplot(aes(x=doubtterr, y=n, fill=doubtterr)) +
+  geom_col() + 
+  facet_wrap(~alternative_txt+crit1+crit2+crit3,nrow = 2) +
+  theme_classic() +
+  labs(title="Doubt Terrorism Proper") +
+  xlab("Doubt") + ylab("Number of Incidents") +
+  theme(legend.position = "None",
+        axis.text.x = element_text(size=8),
+        strip.text.x = element_text(size=8,face = "bold"),
+        strip.background = element_rect(colour="grey", fill="white"))
+
+
+summary(as.factor(gt$related))
+summary(as.factor(gt$multiple))
+```
+##    ~     Impacts     ~       .
+###     ~     Kills wounds      ~       .
+####      ~    Numbers    ~     .
+```{r}
+gtclean %>% 
+  dplyr::filter(is.na(nkill)==FALSE & is.na(nwound)==FALSE) %>%
+  summarise(TF=sum(nkill),TW=sum(nwound))
+# 294760 Total Fatalities
+# 438422 Total Wounded
+# These numbers are only the known! there is no exact number here, the real death and wounds are greater than this!
+
+rm1 <- gtclean %>% 
+  dplyr::filter(is.na(nkill)==FALSE) %>%
+  group_by(country_txt) %>% 
+  summarise(Death=sum(nkill))
+rm2 <- gtclean %>% 
+  dplyr::filter(is.na(nwound)==FALSE) %>%
+  group_by(country_txt) %>% 
+  summarise(Wounds=sum(nwound)) %>% 
+  arrange(desc(Wounds)) %>% 
+  left_join(rm1, by="country_txt") %>% 
+  arrange(desc(Death)) %>% 
+  as.data.frame()
+
+rm2 <- rm2[,c(1,3,2)]
+rm2
+
+
+gtclean %>% 
+  dplyr::filter(is.na(nkill)==FALSE & is.na(nwound)==FALSE) %>%
+  dplyr::select(Country=country_txt,imonth,iyear,nkill,nwound) %>%  
+  dplyr::mutate(Date=as.numeric(iyear+imonth/12)) %>% 
+  dplyr::filter(Country %in% rm2$country_txt) %>% 
+  dplyr::group_by(Country,Date) %>% 
+  dplyr::summarise(TotalDeath=sum(nkill),TotalWounds=sum(nwound)) 
+
+
+# Year
+gtclean %>% 
+  dplyr::filter(is.na(nkill)==FALSE & is.na(nwound)==FALSE) %>%
+  dplyr::group_by(iyear) %>% 
+  dplyr::summarise(tf=sum(nkill),tw=sum(nwound)) %>% 
+  arrange(desc(tf))
+
+# Month
+gtclean %>% 
+  dplyr::group_by(iyear) %>% 
+  dplyr::summarise(tf=sum(nkill),tw=sum(nwound)) %>% 
+  arrange(tf)
+
+
+```
+####      ~    Overall plot by region     ~     .
+```{r}
+rm <- gtclean %>% 
+  dplyr::mutate(nkill=ifelse(is.na(nkill)==TRUE,0,nkill),
+                nwound=ifelse(is.na(nwound)==TRUE,0,nwound)) %>% 
+  dplyr::select(Region=region_txt,imonth,iyear,nkill,nwound) %>%  
+  dplyr::mutate(Date=as.numeric(iyear+imonth/12)) %>% 
+  dplyr::group_by(Date,Region) %>% 
+  dplyr::summarise(TotalDeath=sum(nkill),TotalWounds=sum(nwound)) %>% 
+  ggplot() +
+  geom_line(aes(x=Date,y=TotalDeath),color="red",size=0.7) +
+  geom_line(aes(x=Date,y=TotalWounds),color="darkblue",size=0.7) +
+  facet_wrap(~Region) +
+  scale_x_continuous(limits = c(1970,2015.12), breaks = seq(1970,2016,5)) +
+  scale_y_continuous(limits = c(0,4000), breaks = seq(0,4000,1000)) +
+  theme_classic() +
+  labs(title="Total Number of Fatalities and Wounds within each Month", subtitle="In each Region") +
+  xlab("Year") + ylab("Number") +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=8),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="white", fill="white"))
+```
+
+####      ~    Highest Fatalities County   ~    .
+```{r}
+rm1 <- gtclean %>% 
+  dplyr::filter(is.na(nkill)==FALSE) %>%
+  group_by(country_txt) %>% 
+  summarise(Death=sum(nkill))
+rm2 <- gtclean %>% 
+  dplyr::filter(is.na(nwound)==FALSE) %>%
+  group_by(country_txt) %>% 
+  summarise(Wounds=sum(nwound)) %>% 
+  arrange(desc(Wounds)) %>% 
+  left_join(rm1, by="country_txt") %>% 
+  arrange(desc(Death)) %>% 
+  as.data.frame()
+rm2 <- rm2[1:20,]
+
+
+rm <- gtclean %>% 
+  dplyr::filter(is.na(nkill)==FALSE & is.na(nwound)==FALSE) %>%
+  dplyr::select(Country=country_txt,imonth,iyear,nkill,nwound) %>%  
+  dplyr::mutate(Date=as.numeric(iyear+imonth/12)) %>% 
+  dplyr::filter(Country %in% rm2$country_txt) %>% 
+  dplyr::group_by(Country,Date) %>% 
+  dplyr::summarise(TotalDeath=sum(nkill),TotalWounds=sum(nwound)) %>% 
+  ggplot() +
+  geom_line(aes(x=Date,y=TotalDeath),color="red",size=0.7) +
+  geom_line(aes(x=Date,y=TotalWounds),color="darkblue",size=0.7) +
+  facet_wrap(~Country,nrow = 5) +
+  scale_x_continuous(limits = c(1970,2015.12), breaks = seq(1970,2016,5)) +
+  theme_classic() +
+  labs(title="Total Number of Fatalities and Wounds within each Month", subtitle="In Countries") +
+  xlab("Year") + ylab("Number") +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=8),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="red", fill="white"))
+```
+
+###    ***    Property    ***       .
+```{r}
+#  
+gtclean %>%
+  group_by(property,propextent,propextent_txt) %>% 
+  summarise(n=n())
+
+
+
+
+rm <- gtclean %>% 
+  filter(propextent %!in% c("0","Unknown")) %>% 
+  group_by(Country=country_txt) %>% 
+  summarise(n=n())  %>% 
+  arrange(n) %>% 
+  filter(n>20)
+rm$Country <- factor(rm$Country,levels =rm$Country)
+
+
+rm2 <- gtclean %>% 
+  filter(propextent %!in% c("0","Unknown")) %>% 
+  select(Country=country_txt,Property=propextent_txt,Region=region_txt) %>% 
+  mutate(Region=ifelse(Region %in% c("North America",
+                                     "Central America & Caribbean",
+                                     "South America"),
+                       "America",as.character(Region)),
+         Region=ifelse(Region %in% c("Central Asia",
+                                     "Southeast Asia",
+                                     "East Asia",
+                                     "South Asia"),
+                       "Asia",as.character(Region)),
+         Region=ifelse(Region %in% c("Western Europe",
+                                     "Eastern Europe"),
+                       "Europe",as.character(Region)),
+         Region=ifelse(Region %in% c("Middle East & North Africa",
+                                     "Sub-Saharan Africa"),
+                       "Middle East & Africa",as.character(Region))) %>% 
+  filter(Country %in% rm$Country) %>% 
+  group_by(Country,Property,Region) %>% 
+  summarise(n=n()) 
+
+rm2$Country <- factor(rm2$Country,levels =rm$Country)
+
+rm3 <- ggplot(rm2,aes(x=Country,y=n,fill=Region)) +
+  geom_col(width = 0.8) +
+  facet_wrap(~Property,nrow = 1,scales = "free") +
+  coord_flip() +
+  theme_classic() +
+  labs(title="Loss on Property") +
+  ylab("Counts") + xlab(" ") +
+  theme(legend.position = "bottom",legend.box = "horizontal",
+        axis.text.x = element_text(size=7),
+        axis.text.y = element_text(size=8),
+        strip.text.x = element_text(size=10,face = "bold"),
+        strip.background = element_rect(colour="grey", fill="white"))
+
+```
+
+###     ~     Hostage     ~       .
+```{r}
+# Statistics
+gtclean %>% 
+  filter(ishostkid=="1") %>% 
+  arrange(desc(as.numeric(as.character(ransompaid))))
+  group_by(ishostkid) %>% 
+  summarise(n=n())
+
+
+gtclean %>% 
+  filter(ishostkid==1) %>% 
+  select(nhostkid) %>% 
+  mutate(nhostkid=as.numeric(as.character(nhostkid))) %>% 
+  filter(nhostkid>0) %>% 
+  group_by(nhostkid) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(nhostkid))
+
+gtclean %>% 
+  filter(ishostkid==1) %>%
+  select(ransomamt) %>% 
+  mutate(ransomamt=as.numeric(as.character(ransomamt))) %>% 
+  arrange(ransomamt)
+gtclean %>% 
+  filter(ishostkid==1) %>%
+  select(ransompaid) %>% 
+  mutate(ransompaid=as.numeric(as.character(ransompaid))) %>% 
+  arrange(desc(ransompaid))
+gtclean %>% 
+  filter(ishostkid==1) %>%
+  select(HostageHours) %>% 
+  mutate(HostageHours=as.numeric(as.character(HostageHours))) %>% 
+  arrange(desc(HostageHours))
+gtclean %>% 
+  mutate(ransomamt=as.numeric(as.character(ransomamt))) %>% 
+  filter(ransomamt==1000000000)
+
+```
+####     ~     Number.of.Hostage.Interval     ~    .
+```{r}
+gtclean$nhostkid <- as.character(gtclean$nhostkid)
+gtclean %>% 
+  filter(ishostkid==1) %>%
+  mutate(nhostkid = as.numeric(nhostkid)) %>% 
+  mutate(HOSTinterval= ifelse(nhostkid == 0, "0",
+                              ifelse(nhostkid < 10 & nhostkid != 0, "[1,10)",
+                                     ifelse(nhostkid < 50 & nhostkid >= 10, "[10,50)",
+                                            ifelse(nhostkid < 100 & nhostkid >= 50, "[50,100)",
+                                                   ifelse(nhostkid < 300 & nhostkid >= 100, "[100,300)",
+                                                          ifelse(nhostkid <= 1000 & nhostkid >= 300,"[300,1000]",
+                                                                 ifelse(nhostkid > 1000, "more than 1000",
+                                                                        nhostkid)))))))) %>% 
+  mutate(nhostkid=ifelse(is.na(nhostkid)==TRUE,"Unknown",as.character(nhostkid))) %>% 
+  mutate(HOSTinterval=ifelse(nhostkid=="Unknown","Unknown", as.character(HOSTinterval))) %>% 
+  group_by(HOSTinterval) %>% 
+  summarise(n=n()) %>% 
+  as.data.frame() %>% 
+  mutate(levels=c(2,3,5,6,4,1,7,8)) %>% 
+  arrange(levels)
+```
+####    ~     Hostage       ~       .
+```{r}
+rm <- gtclean %>% 
+  filter(ishostkid==1) %>%
+# assigan the discrete number of hostage token into several intervals.
+  mutate(nhostkid = as.numeric(nhostkid)) %>% 
+  mutate(HostNuminterval= ifelse(nhostkid == 0, "0",
+                              ifelse(nhostkid < 10 & nhostkid != 0, "[1,10)",
+                                     ifelse(nhostkid < 50 & nhostkid >= 10, "[10,50)",
+                                            ifelse(nhostkid < 100 & nhostkid >= 50, "[50,100)",
+                                                   ifelse(nhostkid < 300 & nhostkid >= 100, "[100,300)",
+                                                          ifelse(nhostkid <= 1000 & nhostkid >= 300,"[300,1000]",
+                                                                 ifelse(nhostkid > 1000, "more than 1000",
+                                                                        nhostkid)))))))) %>% 
+  mutate(nhostkid=ifelse(is.na(nhostkid)==TRUE,"Unknown",as.character(nhostkid))) %>% 
+  mutate(HostNuminterval=ifelse(nhostkid=="Unknown","Unknown", as.character(HostNuminterval))) %>% 
+  
+# assigan the discrete number of hostage hours token into intervals.
+  mutate(HostageHours = as.numeric(HostageHours)) %>% 
+  mutate(HostageTime = ifelse(HostageHours < 24,"less than 24 hours",
+                              ifelse(HostageHours < 168,"less than 7 days but more than 24 hours",
+                                     ifelse(HostageHours < 720, "less than a month but more than a week",
+                                            ifelse(HostageHours <= 4370, "less than half year but more than a month",
+                                                   ifelse(HostageHours > 4370, "more than half year",
+                                                                        "Unknown")))))) %>% 
+  mutate(HostageTime = ifelse(is.na(HostageTime)==TRUE, "Unknown", as.character(HostageTime))) %>% 
+  group_by(HostNuminterval,HostageTime) %>% 
+  summarise(n=n())
+
+
+
+
+HostageTable <- gtclean %>% 
+  filter(ishostkid==1) %>%
+# assigan the discrete number of hostage token into several intervals.
+  mutate(nhostkid = as.numeric(nhostkid)) %>% 
+  mutate(HostNuminterval= ifelse(nhostkid == 0, 90,
+                              ifelse(nhostkid < 10 & nhostkid != 0, 
+                                     120,
+                                     ifelse(nhostkid < 50 & nhostkid >= 10, 
+                                            150,
+                                            ifelse(nhostkid < 100 & nhostkid >= 50, 
+                                                   180,
+                                                   ifelse(nhostkid < 300 & nhostkid >= 100, 
+                                                          210,
+                                                          ifelse(nhostkid <= 1000 & nhostkid >= 300, 
+                                                                 240,
+                                                                 ifelse(nhostkid > 1000, 
+                                                                        270,
+                                                                        nhostkid)))))))) %>% 
+  mutate(HostNuminterval=ifelse(is.na(HostNuminterval)==TRUE, 0,
+                                HostNuminterval)) %>% 
+  arrange(desc(HostNuminterval)) %>% 
+  mutate(HostNuminterval = as.factor(HostNuminterval)) %>% 
+
+# assigan the discrete number of hostage hours token into intervals.
+  mutate(HostageHours = as.numeric(HostageHours)) %>% 
+  mutate(HostageTime = ifelse(HostageHours < 24, 
+                              1,
+                              ifelse(HostageHours < 168,
+                                     2,
+                                     ifelse(HostageHours < 720,
+                                            3,
+                                            ifelse(HostageHours <= 4370, 
+                                                   4,
+                                                   ifelse(HostageHours > 4370, 
+                                                          5, HostageHours)))))) %>% 
+  mutate(HostageTime = ifelse(is.na(HostageTime)==TRUE, -2, HostageTime)) %>%
+  arrange(desc(HostageTime)) %>% 
+  mutate(HostageTime = as.factor(HostageTime)) %>% 
+  
+  # nreleased into interval 
+  mutate(nreleased = as.numeric(nreleased)) %>% 
+  mutate(NumRel= ifelse(nreleased == 0, 0,
+                              ifelse(nreleased < 10 & nreleased != 0, 
+                                     1,
+                                     ifelse(nreleased < 50 & nreleased >= 10, 
+                                            2,
+                                            ifelse(nreleased < 100 & nreleased >= 50, 
+                                                   3,
+                                                   ifelse(nreleased < 300 & nreleased >= 100, 
+                                                          4,
+                                                          ifelse(nreleased <= 1000 & nreleased >= 300,
+                                                                 5,
+                                                                 ifelse(nreleased > 1000, 
+                                                                        6,
+                                                                        nreleased)))))))) %>% 
+  mutate(NumRel = ifelse(is.na(NumRel)== TRUE,-3,NumRel)) %>% 
+  arrange(desc(NumRel)) %>% 
+  mutate(NumRel = as.factor(NumRel)) %>% 
+  arrange(ID) %>% 
+
+  dplyr::mutate(hostkidoutcome_txt=ifelse(
+    hostkidoutcome_txt %in% c("Hostage(s) escaped (not during rescue attempt)",
+                              "Hostage(s) released by perpetrators",
+                              "Successful Rescue"), "Survived", 
+    ifelse(hostkidoutcome_txt == 
+             "Hostage(s) killed (not during rescue attempt)","Died", "Unknown"))) %>% 
+  dplyr::mutate(hostkidoutcome_txt=ifelse(is.na(hostkidoutcome_txt)==TRUE, "Unknown", 
+                                          as.character(hostkidoutcome_txt))) %>%  
+  
+  # divide 
+  
+  # select all above arguments 
+  dplyr::select(Demand=ransomamt,Paid=ransompaid,HostageOutcome=hostkidoutcome_txt,No.Hostage=HostNuminterval,
+                No.Released=NumRel, No.Hours=HostageTime) %>% 
+  
+  # pass to the ggparcoord
+  ggparcoord(columns=c(4,1:2,6,5),groupColumn = 3,scale="center",
+             missing="exclude",alphaLines=0.9) +
+  scale_color_manual(values = c("Died"="red","Survived"="green","Unknown"="black")) +
+  theme_classic() +
+  xlab("Ransom") + ylab("Values in U.S Dollar") +
+  labs(title="Ransom Amount Paid versus Demand ")
+  
+  
+
+```
+####     ~   Interval Plot    ~      .
+```{r}
+HostageTable <- gtclean %>% 
+  filter(ishostkid==1) %>%
+  filter(nhostkid > 0) %>% 
+# assigan the discrete number of hostage token into several intervals.
+  mutate(nhostkid = as.numeric(nhostkid)) %>% 
+  mutate(HostNuminterval= ifelse(nhostkid < 50,
+                                 90,
+                                 ifelse(nhostkid < 300 & nhostkid >= 50,
+                                               120,
+                                               ifelse(nhostkid >= 300,
+                                                      150, nhostkid)))) %>% 
+  mutate(HostNuminterval=ifelse(is.na(HostNuminterval)==TRUE, -50,
+                                HostNuminterval)) %>% 
+  
+# assigan the discrete number of hostage hours token into intervals.
+  mutate(HostageHours = as.numeric(HostageHours)) %>% 
+  mutate(HostageTime = ifelse(HostageHours < 24, # 1 day
+                              90,
+                              ifelse(HostageHours < 168, # 1 week
+                                     120,
+                                     ifelse(HostageHours < 2160, # 3 months
+                                            150,
+                                            ifelse(HostageHours >= 2160,  # more than 3 months 
+                                                   180, HostageHours))))) %>% 
+  mutate(HostageTime = ifelse(is.na(HostageTime)==TRUE, -50, HostageTime)) %>%
+
+  
+  # nreleased into interval 
+  mutate(nreleased = as.numeric(nreleased)) %>% 
+  mutate(NumRel= ifelse(nreleased == 0, 
+                        90,
+                        ifelse(nreleased < 50,
+                               120,
+                               ifelse(nreleased < 100 & nreleased >= 50, 
+                                      150,
+                                      ifelse(nreleased < 300 & nreleased >= 100,
+                                             180,
+                                             ifelse(nreleased > 300, 
+                                                    210, nreleased)))))) %>% 
+  mutate(NumRel = ifelse(is.na(NumRel)== TRUE,-50,NumRel)) %>% 
+  arrange(ID) %>% 
+
+  dplyr::mutate(hostkidoutcome_txt=ifelse(
+    hostkidoutcome_txt %in% c("Hostage(s) escaped (not during rescue attempt)",
+                              "Hostage(s) released by perpetrators",
+                              "Successful Rescue"), "Survived", 
+    ifelse(hostkidoutcome_txt == 
+             "Hostage(s) killed (not during rescue attempt)","Died", "Unknown"))) %>% 
+  dplyr::mutate(hostkidoutcome_txt=ifelse(is.na(hostkidoutcome_txt)==TRUE, "Unknown", 
+                                          as.character(hostkidoutcome_txt))) %>%  
+  
+  # numeric(ransomamt)
+  mutate(ransomamt = as.numeric(ransomamt)) %>% 
+  mutate(ransomamt = ifelse(is.na(ransomamt)==TRUE,-500, ransomamt)) %>% 
+  
+  mutate(ransompaid = as.numeric(ransompaid)) %>% 
+  mutate(ransompaid = ifelse(is.na(ransompaid)==TRUE,-500, ransompaid)) %>% 
+  
+  # select all above arguments 
+  dplyr::select(Demand=ransomamt,Paid=ransompaid,HostageOutcome=hostkidoutcome_txt,No.Hostage=HostNuminterval,No.Released=NumRel,No.Hours=HostageTime) %>% 
+  
+  # pass to the ggparcoord
+  ggparcoord(columns=c(4,1:2,6,5),groupColumn = 3,scale="center",
+             missing="exclude") +
+  scale_color_manual(values = c("Died"="red","Survived"="green","Unknown"="black")) +
+  theme_classic() +
+  xlab(" ") + ylab(" ") +
+  labs(title="Hostage", subtitle="Number of Hostage, Ransom Amount Demand, Amount Paid, Number of Hostage Hours, Number of Released") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=10),
+        axis.text.y = element_text(size=0.1))
+ggparcoord(columns = )
+  
+  
+```
+####     ~   normal Value Plot       ~       .
+```{r}
+HostageTable <- gtclean %>% 
+  filter(ishostkid==1) %>%
+  # assigan the discrete number of hostage token into several intervals.
+  mutate(nhostkid = as.numeric(nhostkid)) %>% 
+  mutate(nhostkid=ifelse(is.na(nhostkid)==TRUE,-4000,nhostkid)) %>% 
+  
+  # assigan the discrete number of hostage hours token into intervals.
+  mutate(HostageHours = as.numeric(HostageHours)) %>% 
+  mutate(HostageHours = ifelse(is.na(HostageHours)==TRUE, -2500, HostageHours)) %>%
+
+  # nreleased into interval 
+  mutate(nreleased = as.numeric(nreleased)) %>% 
+  mutate(nreleased = ifelse(is.na(nreleased)== TRUE,-50,nreleased)) %>% 
+  arrange(ID) %>%
+  
+  # numeric(ransomamt)
+  mutate(ransomamt = as.numeric(as.character(ransomamt))) %>% 
+  mutate(ransomamt = ifelse(is.na(ransomamt)==TRUE,-70000000, ransomamt)) %>% 
+  
+  mutate(ransompaid = as.numeric(as.character(ransompaid))) %>% 
+  mutate(ransompaid = ifelse(is.na(ransompaid)==TRUE,-4000000, ransompaid)) %>% 
+
+  dplyr::mutate(hostkidoutcome_txt=ifelse(
+    hostkidoutcome_txt %in% c("Hostage(s) escaped (not during rescue attempt)",
+                              "Hostage(s) released by perpetrators",
+                              "Successful Rescue"), "Survived", 
+    ifelse(hostkidoutcome_txt == 
+             "Hostage(s) killed (not during rescue attempt)","Died", "Unknown"))) %>% 
+  dplyr::mutate(hostkidoutcome_txt=ifelse(is.na(hostkidoutcome_txt)==TRUE, "Unknown", 
+                                          as.character(hostkidoutcome_txt))) %>%  
+  
+  # select all above arguments 
+  dplyr::select(Demand=ransomamt,Paid=ransompaid,HostageOutcome=hostkidoutcome_txt,No.Hostage=nhostkid,
+                No.Released=nreleased,No.Hours=HostageHours) %>% 
+  
+  # pass to the ggparcoord
+  ggparcoord(columns=c(4,1,2,6,5),groupColumn = 3,scale="center",
+             missing="min10") +
+  scale_color_manual(values = c("Died"="red","Survived"="green","Unknown"="black")) +
+  theme_classic() +
+  xlab(" ") + ylab(" ") +
+  labs(title="Hostage", subtitle="Number of Hostage, Ransom Amount Demand, Amount Paid, Number of Hostage Hours, Number of Released") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=11),
+        axis.text.y = element_text(size=0.1))
+  
+
+```
+
+
+##    ~    Map Plot    ~     .
+###    ~   Global plot   ~    .
+```{r}
+library(ggmap)
+library(rgdal)
+library(ggplot2)
+library(tidyverse)
+
+mapgt <- gtclean %>% 
+  filter(is.na(longitude)==FALSE,is.na(latitude)==FALSE)
+mapgt <- mapgt[,-1]
+
+```
+###   ~  World   ~    .
+```{r}
+world <- map_data("world")
+ggplot() +
+  geom_polygon(data=world, aes(x=long,y=lat,group=group)) +
+  theme_classic() +
+  geom_point(data=mapgt,aes(x=longitude,y=latitude,
+                            color=country_txt,size=0.005,alpha=0.05),show.legend = FALSE)
+
+  geom_density2d(data=mapgt,aes(x=longitude,y=latitude),size=0.02) +
+  stat_density2d(data=mapgt,aes(x=longitude,y=latitude,
+                            fill=..level..,alpha=..level..),
+                 size=0.5,bins=15,geom = "polygon") +
+  scale_fill_gradient(low = "green", high="red") +
+  scale_alpha(range=c(0.3,0.1),guide=FALSE)
+
+```
+
+###   ~  World.1   ~    .
+```{r}
+library(viridisLite)
+library(dplyr)
+library(countrycode)
+
+CCode <- data.frame(Country=countrycode_data$country.name.en,
+                    iso3=countrycode_data$iso3c)
+
+worldplot <- mapgt %>% 
+  group_by(Country=country_txt) %>% 
+  summarise(Count = round(n())) %>% 
+  as.data.frame() %>%  
+  left_join(CCode,by="Country") 
+# some values did not match, need fix it manually
+fix(worldplot)
+
+data(worldgeojson,package = "highcharter")
+
+dshmstops <- data.frame(q = c(0, exp(1:5)/exp(5)),
+                        c = substring(viridis(5 + 1, option = "D"),
+                                      0, 7)) %>% list_parse2()
+
+highchart() %>% 
+  hc_add_series_map(worldgeojson, worldplot, value = "Count", joinBy = "iso3") %>% 
+  hc_colorAxis(stops = dshmstops) %>% 
+  hc_legend(enabled = TRUE) %>% 
+  hc_add_theme(hc_theme_db()) %>% 
+  hc_mapNavigation(enabled = TRUE) %>%
+  hc_title(text = "Global Terror Attacks 1970-2015") %>%
+  hc_add_theme(hc_theme_google()) %>%
+  hc_credits(enabled = TRUE, text = "Sources: National Consortium for the Study of Terrorism and Responses to Terrorism (START)", style = list(fontSize = "10px")) 
+
+summary(ccode[,1] %in% countrycode_data$country.name.en)
+# 41 not in the country name list, let's find the reason
+ccode[(ccode[,1] %!in% countrycode_data$country.name.en),]
+```
+
+
+####
+```{r}
+worldplot$CountryCode <- CCode
+countries$iso3 <- countrycode_data[match(countries$country.name, countrycode_data$country.name), "iso3c"]
+
+data(worldgeojson, package = "highcharter")
+dshmstops <- data.frame(q = c(0, exp(1:5)/exp(5)),
+                        c = substring(viridis(5 + 1, option = "D"), 0, 7)) %>%  list_parse2()
+
+highchart() %>% 
+  hc_add_series_map(worldgeojson, countries, value = "total", joinBy = "iso3") %>% 
+  hc_colorAxis(stops = dshmstops) %>% 
+  hc_legend(enabled = TRUE) %>% 
+  hc_add_theme(hc_theme_db()) %>% 
+  hc_mapNavigation(enabled = TRUE) %>%
+  hc_title(text = "Global Terror Attacks 1970-2015") %>%
+  hc_add_theme(hc_theme_google()) %>%
+  hc_credits(enabled = TRUE, text = "Sources: National Consortium for the Study of Terrorism and Responses to Terrorism (START)", style = list(fontSize = "10px")) 
+
+```
+
+###   ~  Country Plot   ~    .
+```{r}
+sfMap = map = get_map(location = 'San Francisco', zoom = 12)
+
+summary(is.na(gt$latitude))
+summary(is.na(gt$longitude))
+
+gtshiny <- gt %>% 
+  filter(is.na(latitude)==FALSE) %>% 
+  select(ID,iyear,imonth,extended,resolutionLast,country_txt,region_txt,provstate,latitude,longitude,success,suicide,attacktype1_txt,targtype1_txt)
+
+```
+####   ~  Iraq   ~    .
+```{r}
+iraqdata <- mapgt %>% 
+  dplyr::filter(country_txt=="Iraq")
+
+iraq <- geojsonio::geojson_read("iq-all.geo.json",what="sp")
+
+iraq <- get_map(location="Iraq",zoom=6,color="bw")
+
+iraqmap <- ggmap(iraq, base_layer = ggplot(aes(x=longitude,y=latitude),data = iraqdata))
+
+iraqmap +
+  stat_density2d(aes(x=longitude,y=latitude,
+                     fill= ..level.., alpha= ..level..),
+                 bins=5,geom = "polygon",
+                 data=iraqdata) +
+  scale_fill_gradient(low="green",high = "red") +
+  fac
+
+
+world=get_map(location = "world",zoom=2,color = "bw")
+worldmap <- ggmap(world, base_layer = ggplot(aes(x=longitude,y=latitude),data = gtclean))
+worldmap +
+  stat_density2d(aes(x=longitude,y=latitude,
+                     fill= ..level.., alpha= ..level..),
+                 bins=5,geom = "polygon",
+                 data=gtclean) +
+  scale_fill_gradient(low="green",high = "red") +
+  fac
+
+
+
+iraq <- readOGR("iq-all.geo.json","OGRGeoJSON")
+rm <- leaflet() %>% 
+  addTiles() %>% 
+  addTopoJSON(iraq,weight=1)
+leaflet(iraq) %>%
+  addTiles() %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.3, fillOpacity = 1,
+    label = ~paste0(county, ": ", formatC(pop, big.mark = ","))) %>%
+  addLegend(pal = pal, values = ~log10(pop), opacity = 1.0,
+    labFormat = labelFormat(transform = function(x) round(10^x)))
+
+
+
+world=get_map(location = c(lon=-95.3632715,lat=29.7632836),
+              zoom=4,maptype ="toner-background")
+plot(world)
+```
+####   ~  Afahan   ~    .
+```{r}
+
+```
+
+### Mosaic
+```{r}
+mosaicplot(~attacktype1_txt+targtype1_txt,data=AtVSTa,color=TRUE,off=c(4,4,4),cex=0.8)
+
+mosaicplot(~attacktype1_txt+targtype1_txt+gname,data=gtclean, 
+           main = "Student Alcohol Consumption", 
+           xlab="Gender",ylab="Address",
+           color=c("navy","lightskyblue","salmon","red"),
+           cex=0.1,off=c(10,2,10))
+
+
+```
+
+
+### Attack v.s Target
+```{r}
+AtVSTa <- gtclean %>% 
+  select(attacktype1_txt,targtype1_txt) %>% 
+  group_by(targtype1_txt,attacktype1_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+
+sum(AtVSTa$n)
+```
+
+### Corp
+```{r}
+gtclean %>% 
+  select(corp1) %>% 
+  group_by(corp1) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+```
+
+###  gname
+```{r}
+gtclean %>% 
+  select(gname) %>% 
+  group_by(gname) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+```
+
+### Weapon Type
+```{r}
+gtclean %>% 
+  select(weaptype1_txt) %>% 
+  group_by(weaptype1_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+```
+
+### Impact
+n kills and n wound and property damage
+total confirmed fatalities for the incident.
+```{r}
+plot1d <- gtclean %>%
+  dplyr::select(ID,country_txt,success,attacktype1_txt,targtype1_txt,
+                natlty1_txt,gname,weaptype1_txt,nkill,nwound,
+                property,propextent,propextent_txt,propvalue)
+
+
+nkillnwound <- gtclean %>% 
+  select(nkill,nwound) %>% 
+  group_by(nkill, nwound) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+sum(nkillnwound$n)
+
+ImpactGTD <- gtclean %>% 
+  select(nkill,nwound,property,propextent,propextent_txt,propvalue) 
+
+gtclean %>% 
+  select(property) %>% 
+  group_by(property) %>% 
+  summarise(n=n())
+
+gtclean %>% 
+  select(property,propextent_txt,propvalue) %>%
+  group_by(property,propextent_txt,propvalue) %>% 
+  summarise(n=n())
+
+gtclean %>% 
+  select(property,propextent_txt) %>%
+  group_by(property,propextent_txt) %>% 
+  summarise(n=n())
+
+# 5 major Catastrophic incidents ( > $1 billion)
+gt %>% 
+  select(eventid,iyear,imonth,iday,country_txt,region_txt,city,targtype1_txt,attacktype1_txt,corp1,gname,propcomment,property,
+         propextent_txt,propvalue,nkill,nwound) %>% 
+  filter(propextent==1)
+
+
+MajorIncidents <- gtclean %>% 
+  filter((propextent==2)) %>% 
+  select(country_txt, city,region_txt,propextent,propextent_txt,propvalue,nkill,nwound) %>% 
+  group_by(country_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n)) %>% 
+  ggplot(aes(x=reorder(country_txt,n), y=n)) + 
+  geom_col() +
+  coord_flip()
+```
+
+###  Major Property damage   ~
+```{r}
+MajorIncidents <- gtclean %>% 
+  filter(propextent == 2) %>% 
+  select(country_txt, city,region_txt,propextent,propextent_txt,
+         propvalue,nkill,nwound,attacktype1_txt,targtype1_txt) %>%
+  group_by(country_txt,propextent_txt) %>% 
+  summarise(n=n()) %>%
+  arrange(desc(n)) %>%  
+  as.data.frame() 
+
+  
+mdp <- ggplot(MajorIncidents[1:20,],aes(x=reorder(country_txt,n),
+                                   y=n,fill="salmon")) + 
+  geom_col() +
+  geom_text(aes(x=reorder(country_txt,n), y=n,label=n),hjust=2) +
+  coord_flip() +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,150),breaks = seq(0,150,10)) +
+  labs(title="Major Property Damage", subtitle="Incidents happend with major property damage") +
+  xlab("Country") + ylab("Total ") +
+  theme(legend.position = "None",
+        axis.text.x = element_text(size=13),
+        axis.text.y = element_text(size=13))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+###  Bins 
+###         ~     Statistics        ~       .
+```{r}
+rm <- gtclean %>% 
+  group_by(country_txt) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n)) %>% 
+  as.data.frame()
+
+sum(rm$n[1:20])
+sum(rm$n[1:10])
+sum(rm$n[1:5])
+
+gtclean %>% filter(propextent=="1")
+
+
+```
+
